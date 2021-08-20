@@ -3,10 +3,10 @@ This is your README.md... you should write anything relevant to your implementat
 
 Please ensure your student details are specified below (*exactly* as on UniMelb records):
 
-**Name:** ... \
-**Student Number:** XXXXXXX \
-**Username:** ... \
-**Email:** ...@student.unimelb.edu.au
+**Name:** Jun Cheng Woo \
+**Student Number:** 1045457 \
+**Username:** woojw \
+**Email:** woojw@student.unimelb.edu.au
 
 ## Completed stages
 
@@ -71,7 +71,7 @@ dotnet run -- -f tests/sample_scene_1.txt -o images/sample_scene_1.png -x 4
 ```
 <p float="left">
   <img src="/images/sample_scene_1_s1.png" />
-  <img src="/images/sample_scene_1_s2.png" /> 
+  <img src="/images/sample_scene_1_s2.png" />
 </p>
 
 ###### Sample 2
@@ -81,7 +81,7 @@ dotnet run -- -f tests/sample_scene_2.txt -o images/sample_scene_2.png -x 4
 ```
 <p float="left">
   <img src="/images/sample_scene_2_s1.png" />
-  <img src="/images/sample_scene_2_s2.png" /> 
+  <img src="/images/sample_scene_2_s2.png" />
 </p>
 
 ## References
