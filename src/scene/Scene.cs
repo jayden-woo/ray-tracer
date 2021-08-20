@@ -50,7 +50,15 @@ namespace RayTracer
         /// <param name="outputImage">Image to store render output</param>
         public void Render(Image outputImage)
         {
-            // Begin writing your code here...
+            // Loop through all the pixels in the image
+            for (int x = 0; x < outputImage.Width; x++)
+            {
+                for (int y = 0; y < outputImage.Height; y++)
+                {
+                    // Set each pixel to white colour
+                    outputImage.SetPixel(x, y, new Color(1, 1, 1));
+                }
+            }
         }
 
     }
