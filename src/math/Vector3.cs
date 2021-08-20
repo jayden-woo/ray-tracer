@@ -40,8 +40,8 @@ namespace RayTracer
         /// <returns>Length of the vector squared</returns>
         public double LengthSq()
         {
-            // Write your code here...
-            return 0;
+            // Sum of the squares of the vector components
+            return (this.x * this.x) + (this.y * this.y) + (this.z * this.z);
         }
 
         /// <summary>
@@ -50,8 +50,8 @@ namespace RayTracer
         /// <returns>Length of the vector</returns>
         public double Length()
         {
-            // Write your code here...
-            return 0;
+            // Calculate the square root of the sum of squares of the vector components
+            return Math.Sqrt(this.LengthSq());
         }
 
         /// <summary>
@@ -60,8 +60,9 @@ namespace RayTracer
         /// <returns>Normalized vector</returns>
         public Vector3 Normalized()
         {
-            // Write your code here...
-            return new Vector3(0, 0, 0);
+            // Divide the vector components by its magnitude or length
+            double mag = this.Length();
+            return new Vector3(this.x / mag, this.y / mag, this.z / mag);
         }
 
         /// <summary>
@@ -71,8 +72,8 @@ namespace RayTracer
         /// <returns>Dot product result</returns>
         public double Dot(Vector3 with)
         {
-            // Write your code here...
-            return 0;
+            // Sum of the products of the vector components in the same axis
+            return (this.x * with.X) + (this.y * with.Y) + (this.z * with.Z);
         }
 
         /// <summary>
@@ -82,8 +83,11 @@ namespace RayTracer
         /// <returns>Cross product result</returns>
         public Vector3 Cross(Vector3 with)
         {
-            // Write your code here...
-            return new Vector3(0, 0, 0);
+            // Find each the components of the new normal vector
+            double i = (this.y * with.Z) - (this.z * with.Y);
+            double j = (this.z * with.X) - (this.x * with.Z);
+            double k = (this.x * with.Y) - (this.y * with.X);
+            return new Vector3(i, j, k);
         }
 
         /// <summary>
@@ -94,8 +98,8 @@ namespace RayTracer
         /// <returns>Summed vector</returns>
         public static Vector3 operator +(Vector3 a, Vector3 b)
         {
-            // Write your code here...
-            return new Vector3(0, 0, 0);
+            // Add each of the components at their matching axis
+            return new Vector3(a.X + b.X, a.Y + b.Y, a.Z + b.Z);
         }
 
         /// <summary>
@@ -105,8 +109,8 @@ namespace RayTracer
         /// <returns>Negated vector</returns>
         public static Vector3 operator -(Vector3 a)
         {
-            // Write your code here...
-            return new Vector3(0, 0, 0);
+            // Negate each of the vector components
+            return new Vector3(-a.X, -a.Y, -a.Z);
         }
 
         /// <summary>
@@ -117,8 +121,8 @@ namespace RayTracer
         /// <returns>Subtracted vector</returns>
         public static Vector3 operator -(Vector3 a, Vector3 b)
         {
-            // Write your code here...
-            return new Vector3(0, 0, 0);
+            // Subtract each of the components at their matching axis
+            return new Vector3(a.X - b.X, a.Y - b.Y, a.Z - b.Z);
         }
 
         /// <summary>
@@ -129,8 +133,8 @@ namespace RayTracer
         /// <returns>Multiplied vector</returns>
         public static Vector3 operator *(Vector3 a, double b)
         {
-            // Write your code here...
-            return new Vector3(0, 0, 0);
+            // Multiply each of the components by the scalar value
+            return new Vector3(a.X * b, a.Y * b, a.Z * b);
         }
 
         /// <summary>
@@ -141,8 +145,8 @@ namespace RayTracer
         /// <returns>Multiplied vector</returns>
         public static Vector3 operator *(double b, Vector3 a)
         {
-            // Write your code here...
-            return new Vector3(0, 0, 0);
+            // Multiply each of the components by the scalar value
+            return new Vector3(b * a.X, b * a.Y, b * a.Z);
         }
 
         /// <summary>
@@ -153,8 +157,8 @@ namespace RayTracer
         /// <returns>Divided vector</returns>
         public static Vector3 operator /(Vector3 a, double b)
         {
-            // Write your code here...
-            return new Vector3(0, 0, 0);
+            // Divide each of the components by the scalar value
+            return new Vector3(a.X / b, a.Y / b, a.Z / b);
         }
 
         /// <summary>
