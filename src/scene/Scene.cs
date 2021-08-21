@@ -9,6 +9,9 @@ namespace RayTracer
     /// </summary>
     public class Scene
     {
+        // Horizontal field-of-view of the camera in degrees
+        public const double FieldOfView = 60.0;
+
         private SceneOptions options;
         private ISet<SceneEntity> entities;
         private ISet<PointLight> lights;
@@ -50,11 +53,33 @@ namespace RayTracer
         /// <param name="outputImage">Image to store render output</param>
         public void Render(Image outputImage)
         {
+            // Find the aspect ratio and the FOV scaling factor of the image
+            double aspectRatio = outputImage.Width / outputImage.Height;
+            double scaleFOV = Math.Tan((FieldOfView / 180 * Math.PI) / 2);
+
             // Loop through all the pixels in the image
-            for (int x = 0; x < outputImage.Width; x++)
+            for (int y = 0; y < outputImage.Height; y++)
             {
-                for (int y = 0; y < outputImage.Height; y++)
+                for (int x = 0; x < outputImage.Width; x++)
                 {
+                    // Find the pixel coordinates on the screen first
+                    double x_pos = (x + 0.5) / outputImage.Width;
+                    double y_pos = (y + 0.5) / outputImage.Height;
+                    double z_pos = 1.0;
+
+                    // Scale the coordinates to a range between -1 and 1
+                    x_pos = (x_pos * 2) - 1;
+                    y_pos = 1 - (y_pos * 2);
+
+                    // Scale the coordinates by the appropriate factors next
+                    x_pos = x_pos * scaleFOV;
+                    y_pos = y_pos * scaleFOV / aspectRatio;
+
+                    // Create the ray for this pixel
+                    Vector3 origin = new Vector3(0, 0, 0);
+                    Vector3 direction = new Vector3(x_pos, y_pos, z_pos);
+                    Ray ray = new Ray(origin, direction);
+
                     // Set each pixel to white colour
                     outputImage.SetPixel(x, y, new Color(1, 1, 1));
                 }
