@@ -54,8 +54,8 @@ namespace RayTracer
         public void Render(Image outputImage)
         {
             // Find the aspect ratio and the FOV scaling factor of the image
-            double aspectRatio = outputImage.Width / outputImage.Height;
-            double scaleFOV = Math.Tan((FieldOfView / 180 * Math.PI) / 2);
+            double aspectRatio = (double) outputImage.Width / outputImage.Height;
+            double scale = Math.Tan((FieldOfView / 180 * Math.PI) / 2);
 
             // Loop through all the pixels in the image
             for (int y = 0; y < outputImage.Height; y++)
@@ -67,21 +67,32 @@ namespace RayTracer
                     double y_pos = (y + 0.5) / outputImage.Height;
                     double z_pos = 1.0;
 
-                    // Scale the coordinates to a range between -1 and 1
-                    x_pos = (x_pos * 2) - 1;
-                    y_pos = 1 - (y_pos * 2);
+                    // Scale the x and y coordinates by the appropriate factors
+                    x_pos = ((x_pos * 2) - 1) * scale;
+                    y_pos = (1 - (y_pos * 2)) * scale / aspectRatio;
 
-                    // Scale the coordinates by the appropriate factors next
-                    x_pos = x_pos * scaleFOV;
-                    y_pos = y_pos * scaleFOV / aspectRatio;
-
-                    // Create the ray for this pixel
+                    // Create a ray for this pixel
                     Vector3 origin = new Vector3(0, 0, 0);
-                    Vector3 direction = new Vector3(x_pos, y_pos, z_pos);
-                    Ray ray = new Ray(origin, direction);
+                    Vector3 direction = new Vector3(x_pos, y_pos, z_pos) - origin;
+                    Ray ray = new Ray(origin, direction.Normalized());
 
-                    // Set each pixel to white colour
-                    outputImage.SetPixel(x, y, new Color(1, 1, 1));
+                    // Find the closest entity intersected with the ray
+                    double minZ = Double.PositiveInfinity;
+                    foreach (SceneEntity entity in this.entities)
+                    {
+                        // Check if the ray intersects with this entity
+                        RayHit hit = entity.Intersect(ray);
+                        if (hit != null)
+                        {
+                            // Check if the Z value of the intersection is closer
+                            if (hit.Position.Z < minZ)
+                            {
+                                // Set the pixel to the colour of the entity
+                                outputImage.SetPixel(x, y, hit.Material.Color);
+                                minZ = hit.Position.Z;
+                            }
+                        }
+                    }
                 }
             }
         }
