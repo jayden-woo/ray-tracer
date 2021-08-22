@@ -31,7 +31,22 @@ namespace RayTracer
         /// <returns>Hit data (or null if no intersection)</returns>
         public RayHit Intersect(Ray ray)
         {
-            // Write your code here...
+            // Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/
+            // minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
+
+            // Check if the plane is close to being parallel to the ray
+            double denominator = ray.Direction.Dot(this.normal);
+            if (Math.Abs(denominator) > Double.Epsilon)
+            {
+                // Check if the ray intersects the plane behind the camera's origin
+                double t = (this.center - ray.Origin).Dot(this.normal) / denominator;
+                if (t >= 0) {
+                    // Find and return the hit data for the intersection
+                    Vector3 position = ray.Origin + (t * ray.Direction);
+                    return new RayHit(position, this.normal, ray.Direction, this.material);
+                }
+            }
+            // The plane is parallel to the ray or the intersection point is behind the camera
             return null;
         }
 

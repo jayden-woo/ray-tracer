@@ -21,7 +21,7 @@ Tip: To tick, place an x between the square brackes [ ], like so: [x]
 - [x] Stage 1.1 - Familiarise yourself with the template
 - [x] Stage 1.2 - Implement vector mathematics
 - [x] Stage 1.3 - Fire a ray for each pixel
-- [ ] Stage 1.4 - Calculate ray-entity intersections
+- [x] Stage 1.4 - Calculate ray-entity intersections
 - [ ] Stage 1.5 - Output primitives as solid colours
 
 ##### Stage 2
@@ -96,5 +96,8 @@ Working through a ray tracer, from the head of the xbox games studio: https://ww
 
 Great walkthrough of some of the basic maths: https://blog.scottlogic.com/2020/03/10/raytracer-how-to.html
 
-Scratchapixel: intro to ray tracing: https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-ray-tracing/how-does-it-work
+Scratchapixel: Intro to Ray Tracing: https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-ray-tracing/how-does-it-work
 
+Scratchapixel: A Minimal Ray-Tracer: Rendering Simple Shapes (Sphere, Cube, Disk, Plane, etc.): https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/parametric-and-implicit-surfaces
+
+Scratchapixel: Ray Tracing: Rendering a Triangle: https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
