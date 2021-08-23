@@ -87,9 +87,22 @@ namespace RayTracer
                             // Check if the Z value of the intersection is closer
                             if (hit.Position.Z < minZ)
                             {
-                                // Set the pixel to the colour of the entity
-                                outputImage.SetPixel(x, y, hit.Material.Color);
+                                // Update the Z value to the closest intersected entity
                                 minZ = hit.Position.Z;
+                                // Find the colour of the entity after illuminated by all the lights in the scene
+                                Color color = new Color(0, 0, 0);
+                                foreach (PointLight light in this.lights)
+                                {
+                                    // Find the direction and strength of the light source
+                                    Vector3 lightDirection = (light.Position - hit.Position).Normalized();
+                                    // Truncate the strength if > 90 degrees to prevent colour underflow
+                                    double strength = Math.Max(0, hit.Normal.Dot(lightDirection));
+                                    // Scale the colour according to the light strength and colour
+                                    color = color + (hit.Material.Color * light.Color * strength);
+                                }
+                                // Set the pixel to the final calculated colour
+                                outputImage.SetPixel(x, y, color);
+
                             }
                         }
                     }

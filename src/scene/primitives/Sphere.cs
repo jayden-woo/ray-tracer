@@ -57,7 +57,7 @@ namespace RayTracer
                     // Find and return the hit data for the intersection
                     Vector3 position = ray.Origin + t * ray.Direction;
                     Vector3 normal = position - this.center;
-                    return new RayHit(position, normal, ray.Direction, this.material);
+                    return new RayHit(position, normal.Normalized(), ray.Direction, this.material);
                 }
             }
             // None of the intersection points are infront of the camera
