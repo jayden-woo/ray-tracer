@@ -11,6 +11,9 @@ namespace RayTracer
     {
         // Horizontal field-of-view of the camera in degrees
         public const double FieldOfView = 60.0;
+        // Offset for the shadow ray from its original point to avoid premature hit with the surface itself
+        // Example output probably used a value around 1e4
+        public const double ShadowBias = 0.00001;
 
         private SceneOptions options;
         private ISet<SceneEntity> entities;
@@ -84,8 +87,8 @@ namespace RayTracer
                         RayHit hit = entity.Intersect(ray);
                         if (hit != null)
                         {
-                            // Check if the Z value of the intersection is closer
-                            if (hit.Position.Z < minZ)
+                            // Check if the Z value of the intersection is closer and if the surface is front-facing
+                            if (hit.Position.Z < minZ && hit.Normal.Dot(ray.Direction) <= 0)
                             {
                                 // Update the Z value to the closest intersected entity
                                 minZ = hit.Position.Z;
@@ -95,19 +98,54 @@ namespace RayTracer
                                 {
                                     // Find the direction and strength of the light source
                                     Vector3 lightDirection = (light.Position - hit.Position).Normalized();
-                                    // Truncate the strength if > 90 degrees to prevent colour underflow
-                                    double strength = Math.Max(0, hit.Normal.Dot(lightDirection));
+
+                                    // Check if a shadow will be casted onto the position for the current light source
+                                    double lightStrength = 0;
+                                    if (!CastShadow(hit, light.Position, lightDirection))
+                                    {
+                                        // Truncate the strength if > 90 degrees to prevent colour underflow
+                                        lightStrength = Math.Max(0, hit.Normal.Dot(lightDirection));
+                                    }
                                     // Scale the colour according to the light strength and colour
-                                    color = color + (hit.Material.Color * light.Color * strength);
+                                    color = color + (hit.Material.Color * light.Color * lightStrength);
                                 }
                                 // Set the pixel to the final calculated colour
                                 outputImage.SetPixel(x, y, color);
-
                             }
                         }
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Check if a hit point is in fact in a shadow for the current
+        /// light source.
+        /// </summary>
+        /// <param name="point">The hit data of the hit point</param>
+        /// <param name="lightPosition">The position of the light source</param>
+        /// <param name="lightDirection">This direction of the light source from the hit point</param>
+        /// <returns>True if the hit point is a shadow and false otherwise</returns>
+        private bool CastShadow(RayHit point, Vector3 lightPosition, Vector3 lightDirection)
+        {
+            // Create a shadow ray from origin to the light source
+            Vector3 origin = point.Position + (ShadowBias * point.Normal);
+            Ray ray = new Ray(origin, lightDirection);
+            foreach (SceneEntity entity in this.entities)
+            {
+                // Check if the shadow ray intersects with any entity on the way
+                RayHit hit = entity.Intersect(ray);
+                if (hit != null)
+                {
+                    // Check if the intersection occurred behind the light source
+                    double zo = point.Position.Z;
+                    double zh = hit.Position.Z;
+                    double zl = lightPosition.Z;
+                    if ((zo <= zh && zh <= zl) || (zo >= zh && zh >= zl)) return true;
+                }
+            }
+            // The point doesn't have any shadow casted on it
+            return false;
         }
 
     }

@@ -41,9 +41,14 @@ namespace RayTracer
             Vector3 pvec = ray.Direction.Cross(v0v2);
             double det = v0v1.Dot(pvec);
 
+            // With back-face culling
             // Check if the triangle is front-facing (det > 0) or back-facing (det < 0)
             // or almost parallel to the ray (det close to 0)
-            if (det < Double.Epsilon) return null;
+            // if (det < Double.Epsilon) return null;
+
+            // Without back-face culling
+            // Check if the triangle is almost parallel to the ray
+            if (Math.Abs(det) < Double.Epsilon) return null;
 
             // Find the inverse det value
             double invDet = 1 / det;
