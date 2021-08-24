@@ -144,6 +144,11 @@ namespace RayTracer
                                 color = CastRay(reflectOrigin, hit.Reflection, depth + 1);
                                 break;
                             case Material.MaterialType.Refractive:
+                                // Find the origin with a small offset
+                                Vector3 refractNormal = ray.Direction.Dot(hit.Normal) < 0 ? -hit.Normal : hit.Normal;
+                                Vector3 refractOrigin = hit.Position + (Bias * refractNormal);
+                                // Recursively find the colour with the refracted ray as origin
+                                color = CastRay(refractOrigin, hit.Refraction, depth + 1);
                                 break;
                         }
                         // Update the minimum distance to the current entity

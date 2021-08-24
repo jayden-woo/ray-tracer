@@ -39,8 +39,55 @@ namespace RayTracer
                 // Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/
                 // introduction-to-shading/reflection-refraction-fresnel
 
-                // Calculate the direction of the reflected ray
+                // Calculate the normalized direction of the reflected ray
                 return (this.incident - 2 * this.incident.Dot(this.normal) * this.normal).Normalized();
+            }
+        }
+
+        /// <summary>
+        /// The direction of the refraction (transmitted) ray.
+        /// </summary>
+        public Vector3 Refraction { get
+            {
+                // Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/
+                // introduction-to-shading/reflection-refraction-fresnel
+
+                double cosi = Math.Clamp(this.incident.Dot(this.normal), -1, 1);
+                double etai = 1, etat = this.material.RefractiveIndex;
+                Vector3 normal;
+
+                // Outside of the surface and entering the object
+                if (cosi < 0)
+                {
+                    // Flip the sign of cos(theta) in the equation
+                    cosi = -cosi;
+                    // Assign the normal vector as it is already in  the right direction
+                    normal = this.normal;
+                }
+                // Inside the surface and exiting the object
+                else
+                {
+                    // Swap the refraction index of the two mediums
+                    double temp = etai;
+                    etai = etat;
+                    etat = temp;
+                    // Reverse the direction of normal before assigning
+                    normal = -this.normal;
+                }
+
+                // Calculate ratio of the two refraction indexes
+                double eta = etai / etat;
+                double k = 1 - eta * eta * (1 - cosi * cosi);
+
+                // Check if total internal reflection occurs (incident angle >= critical angle)
+                if (k < 0)
+                {
+                    // TODO: update direction for total internal reflection
+                    return new Vector3(0, 0, 0);
+                }
+
+                // Calculate the normalized direction of the transmitted ray
+                return (eta * this.incident + (eta * cosi - Math.Sqrt(k)) * normal).Normalized();
             }
         }
 
