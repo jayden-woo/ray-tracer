@@ -11,9 +11,10 @@ namespace RayTracer
     {
         // Horizontal field-of-view of the camera in degrees
         public const double FieldOfView = 60.0;
-        // Offset for the shadow ray from its original point to avoid premature hit with the surface itself
-        // Example output probably used a value around 1e4
-        public const double ShadowBias = 0.00001;
+        // Offset for the ray projection from its original point to avoid premature hit with the surface itself (i.e. 1e4)
+        public const double Bias = 0.00001;
+        // THe maximum recursion depth for a reflective material
+        public const int RayDepth = 10;
 
         private SceneOptions options;
         private ISet<SceneEntity> entities;
@@ -65,7 +66,7 @@ namespace RayTracer
             {
                 for (int x = 0; x < outputImage.Width; x++)
                 {
-                    // Find the pixel coordinates on the screen first
+                    // Find the pixel coordinates on the screen
                     double x_pos = (x + 0.5) / outputImage.Width;
                     double y_pos = (y + 0.5) / outputImage.Height;
                     double z_pos = 1.0;
@@ -74,26 +75,52 @@ namespace RayTracer
                     x_pos = ((x_pos * 2) - 1) * scale;
                     y_pos = (1 - (y_pos * 2)) * scale / aspectRatio;
 
-                    // Create a ray for this pixel
+                    // Find the color for the pixel
                     Vector3 origin = new Vector3(0, 0, 0);
                     Vector3 direction = new Vector3(x_pos, y_pos, z_pos) - origin;
-                    Ray ray = new Ray(origin, direction.Normalized());
+                    Color color = CastRay(origin, direction.Normalized(), 1);
 
-                    // Find the closest entity intersected with the ray
-                    double minZ = Double.PositiveInfinity;
-                    foreach (SceneEntity entity in this.entities)
+                    // Set the pixel to the final calculated colour
+                    outputImage.SetPixel(x, y, color);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Check if a ray is intersecting with any objects in the scene and
+        /// the corresponding colour for the pixel where the ray originated.
+        /// </summary>
+        /// <param name="origin">The start position of the ray</param>
+        /// <param name="direction">The direction of the ray</param>
+        /// <param name="depth">The current recursion depth</param>
+        /// <returns>The colour for the pixel in origin</returns>
+        private Color CastRay(Vector3 origin, Vector3 direction, int depth)
+        {
+            // Set the default color and create a ray from the parameters
+            Color color = new Color(0, 0, 0);
+            Ray ray = new Ray(origin, direction);
+
+            // Check if the maximum recursion depth is reached
+            if (depth > RayDepth) return color;
+
+            // Find the closest entity intersected with the ray
+            double minDist = Double.PositiveInfinity;
+            foreach (SceneEntity entity in this.entities)
+            {
+                // Check if the ray intersects with this entity and if the surface is front-facing
+                RayHit hit = entity.Intersect(ray);
+                if (hit != null && hit.Normal.Dot(ray.Direction) <= 0)
+                {
+                    // Check if the intersection point is closer than previous intersections
+                    double dist = hit.Position.LengthSq();
+                    if (dist < minDist)
                     {
-                        // Check if the ray intersects with this entity
-                        RayHit hit = entity.Intersect(ray);
-                        if (hit != null)
+                        // Check which material the surface is
+                        switch (hit.Material.Type)
                         {
-                            // Check if the Z value of the intersection is closer and if the surface is front-facing
-                            if (hit.Position.Z < minZ && hit.Normal.Dot(ray.Direction) <= 0)
-                            {
-                                // Update the Z value to the closest intersected entity
-                                minZ = hit.Position.Z;
+                            case Material.MaterialType.Diffuse:
                                 // Find the colour of the entity after illuminated by all the lights in the scene
-                                Color color = new Color(0, 0, 0);
+                                color = new Color(0, 0, 0);
                                 foreach (PointLight light in this.lights)
                                 {
                                     // Find the direction and strength of the light source
@@ -109,13 +136,23 @@ namespace RayTracer
                                     // Scale the colour according to the light strength and colour
                                     color = color + (hit.Material.Color * light.Color * lightStrength);
                                 }
-                                // Set the pixel to the final calculated colour
-                                outputImage.SetPixel(x, y, color);
-                            }
+                                break;
+                            case Material.MaterialType.Reflective:
+                                // Find the origin with small offset to prevent premature intersection
+                                Vector3 reflectOrigin = hit.Position + (Bias * hit.Normal);
+                                // Recursively find the colour with the reflected ray as origin
+                                color = CastRay(reflectOrigin, hit.Reflection, depth + 1);
+                                break;
+                            case Material.MaterialType.Refractive:
+                                break;
                         }
+                        // Update the minimum distance to the current entity
+                        minDist = dist;
                     }
                 }
             }
+            // Return the calculated colour value for the origin of the ray
+            return color;
         }
 
         /// <summary>
@@ -129,7 +166,7 @@ namespace RayTracer
         private bool CastShadow(RayHit point, Vector3 lightPosition, Vector3 lightDirection)
         {
             // Create a shadow ray from origin to the light source
-            Vector3 origin = point.Position + (ShadowBias * point.Normal);
+            Vector3 origin = point.Position + (Bias * point.Normal);
             Ray ray = new Ray(origin, lightDirection);
             foreach (SceneEntity entity in this.entities)
             {

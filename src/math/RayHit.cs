@@ -32,6 +32,19 @@ namespace RayTracer
         // e.g. reflection, transmission, etc
 
         /// <summary>
+        /// The direction of the reflection ray.
+        /// </summary>
+        public Vector3 Reflection { get
+            {
+                // Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/
+                // introduction-to-shading/reflection-refraction-fresnel
+
+                // Calculate the direction of the reflected ray
+                return (this.incident - 2 * this.incident.Dot(this.normal) * this.normal).Normalized();
+            }
+        }
+
+        /// <summary>
         /// The position of the intersection point.
         /// </summary>
         public Vector3 Position { get { return this.position; } }

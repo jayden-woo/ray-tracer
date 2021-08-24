@@ -28,7 +28,7 @@ Tip: To tick, place an x between the square brackes [ ], like so: [x]
 
 - [x] Stage 2.1 - Diffuse materials
 - [x] Stage 2.2 - Shadow rays
-- [ ] Stage 2.3 - Reflective materials
+- [x] Stage 2.3 - Reflective materials
 - [ ] Stage 2.4 - Refractive materials
 - [ ] Stage 2.5 - The Fresnel effect
 - [ ] Stage 2.6 - Anti-aliasing
@@ -101,3 +101,5 @@ Scratchapixel: Intro to Ray Tracing: https://www.scratchapixel.com/lessons/3d-ba
 Scratchapixel: A Minimal Ray-Tracer: Rendering Simple Shapes (Sphere, Cube, Disk, Plane, etc.): https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/parametric-and-implicit-surfaces
 
 Scratchapixel: Ray Tracing: Rendering a Triangle: https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
+
+Scratchapixel: Introduction to Shading: https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel
