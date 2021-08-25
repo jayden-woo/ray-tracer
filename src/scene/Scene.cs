@@ -107,53 +107,72 @@ namespace RayTracer
             double minDist = Double.PositiveInfinity;
             foreach (SceneEntity entity in this.entities)
             {
-                // Check if the ray intersects with this entity and if the surface is front-facing
+                // Skip this entity if the ray doesn't intersect with it
                 RayHit hit = entity.Intersect(ray);
-                if (hit != null && hit.Normal.Dot(ray.Direction) <= 0)
-                {
-                    // Check if the intersection point is closer than previous intersections
-                    double dist = hit.Position.LengthSq();
-                    if (dist < minDist)
-                    {
-                        // Check which material the surface is
-                        switch (hit.Material.Type)
-                        {
-                            case Material.MaterialType.Diffuse:
-                                // Find the colour of the entity after illuminated by all the lights in the scene
-                                color = new Color(0, 0, 0);
-                                foreach (PointLight light in this.lights)
-                                {
-                                    // Find the direction and strength of the light source
-                                    Vector3 lightDirection = (light.Position - hit.Position).Normalized();
+                if (hit == null) continue;
 
-                                    // Check if a shadow will be casted onto the position for the current light source
-                                    double lightStrength = 0;
-                                    if (!CastShadow(hit, light.Position, lightDirection))
-                                    {
-                                        // Truncate the strength if > 90 degrees to prevent colour underflow
-                                        lightStrength = Math.Max(0, hit.Normal.Dot(lightDirection));
-                                    }
-                                    // Scale the colour according to the light strength and colour
-                                    color = color + (hit.Material.Color * light.Color * lightStrength);
-                                }
-                                break;
-                            case Material.MaterialType.Reflective:
-                                // Find the origin with small offset to prevent premature intersection
-                                Vector3 reflectOrigin = hit.Position + (Bias * hit.Normal);
-                                // Recursively find the colour with the reflected ray as origin
-                                color = CastRay(reflectOrigin, hit.Reflection, depth + 1);
-                                break;
-                            case Material.MaterialType.Refractive:
-                                // Find the origin with a small offset
-                                Vector3 refractNormal = ray.Direction.Dot(hit.Normal) < 0 ? -hit.Normal : hit.Normal;
-                                Vector3 refractOrigin = hit.Position + (Bias * refractNormal);
-                                // Recursively find the colour with the refracted ray as origin
-                                color = CastRay(refractOrigin, hit.Refraction, depth + 1);
-                                break;
+                // Skip this entity if it is back-facing and not of refractive material
+                if (hit.Normal.Dot(ray.Direction) > 0 && hit.Material.Type != Material.MaterialType.Refractive) continue;
+
+                // Skip this entity if the intersection point is further than previous intersection points
+                double dist = (hit.Position - ray.Origin).LengthSq();
+                if (dist > minDist) continue;
+                // Update the minimum distance to the distance of current entity
+                minDist = dist;
+
+                // Check the type of material of the entity's surface
+                switch (hit.Material.Type)
+                {
+                    case Material.MaterialType.Diffuse:
+                        // Find the colour of the entity after illuminated by all the lights in the scene
+                        color = new Color(0, 0, 0);
+                        foreach (PointLight light in this.lights)
+                        {
+                            // Find the direction and strength of the light source
+                            Vector3 lightDirection = (light.Position - hit.Position).Normalized();
+
+                            // Check if a shadow will be casted onto the position for the current light source
+                            double lightStrength = 0;
+                            if (!CastShadow(hit, light.Position, lightDirection))
+                            {
+                                // Truncate the strength if > 90 degrees to prevent colour underflow
+                                lightStrength = Math.Max(0, hit.Normal.Dot(lightDirection));
+                            }
+                            // Scale the colour according to the light strength and colour
+                            color = color + (hit.Material.Color * light.Color * lightStrength);
                         }
-                        // Update the minimum distance to the current entity
-                        minDist = dist;
-                    }
+                        break;
+                    case Material.MaterialType.Reflective:
+                        // Find the origin with small offset to prevent premature intersection
+                        Vector3 reflectOrigin = hit.Position + (Bias * hit.Normal);
+                        // Recursively find the colour with the reflected ray as origin
+                        color = CastRay(reflectOrigin, hit.Reflection, depth + 1);
+                        break;
+                    case Material.MaterialType.Refractive:
+                        // Get the ratio of reflected light
+                        double kr = hit.Fresnel;
+
+                        // Calculate the direction and offset for each new origin point
+                        bool outside = ray.Direction.Dot(hit.Normal) < 0;
+                        Vector3 offset = Bias * hit.Normal;
+
+                        // Check if the ray is totally internal reflected
+                        Color refractColor = new Color(0, 0, 0);
+                        if (kr < 1)
+                        {
+                            // Find the refraction origin with a small offset
+                            Vector3 refractOrigin = outside ? hit.Position - offset : hit.Position + offset;
+                            // Recursively find the refraction colour with the refraction ray as origin
+                            refractColor = CastRay(refractOrigin, hit.Refraction, depth + 1);
+                        }
+                        // Find the reflection origin with a small offset
+                        reflectOrigin = outside ? hit.Position + offset : hit.Position - offset;
+                        // Recursively find the reflection colour with the reflection ray as origin
+                        Color reflectColor = CastRay(reflectOrigin, hit.Reflection, depth + 1);
+
+                        // Calculate the final colour according to the ratio of each colour
+                        color = reflectColor * kr + refractColor * (1 - kr);
+                        break;
                 }
             }
             // Return the calculated colour value for the origin of the ray

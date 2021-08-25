@@ -68,9 +68,8 @@ namespace RayTracer
                 else
                 {
                     // Swap the refraction index of the two mediums
-                    double temp = etai;
-                    etai = etat;
-                    etat = temp;
+                    etai = this.material.RefractiveIndex;
+                    etat = 1;
                     // Reverse the direction of normal before assigning
                     normal = -this.normal;
                 }
@@ -88,6 +87,43 @@ namespace RayTracer
 
                 // Calculate the normalized direction of the transmitted ray
                 return (eta * this.incident + (eta * cosi - Math.Sqrt(k)) * normal).Normalized();
+            }
+        }
+
+        /// <summary>
+        /// Find the ratio of reflected light to refracted light according
+        /// to the Fresnel equation.
+        /// </summary>
+        public double Fresnel { get
+            {
+                // Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/
+                // introduction-to-shading/reflection-refraction-fresnel
+
+                double cosi = Math.Clamp(this.incident.Dot(this.normal), -1, 1);
+                double etai = 1, etat = this.material.RefractiveIndex;
+
+                // Inside the surface and exiting the object
+                if (cosi > 0)
+                {
+                    // Swap the refraction index of the two mediums
+                    etai = this.material.RefractiveIndex;
+                    etat = 1;
+                }
+
+                // Calculate sint using Snell's Law
+                double sint = etai / etat * Math.Sqrt(Math.Max(0.0, 1 - cosi * cosi));
+
+                // Check if total internal reflection occurs
+                if (sint >= 1) return 1;
+
+                // Calculate the ratio of reflected light on the surface
+                cosi = Math.Abs(cosi);
+                double cost = Math.Sqrt(Math.Max(0.0, 1 - sint * sint));
+                double rs = ((etat * cosi) - (etai * cost)) / ((etat * cosi) + (etai * cost));
+                double rp = ((etai * cosi) - (etat * cost)) / ((etai * cosi) + (etat * cost));
+
+                // Return the calculated ratio
+                return (rs * rs + rp * rp) / 2;
             }
         }
 
