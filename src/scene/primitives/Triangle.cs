@@ -27,14 +27,12 @@ namespace RayTracer
 
         /// <summary>
         /// Determine if a ray intersects with the triangle, and if so, return hit data.
+        /// Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
         /// </summary>
         /// <param name="ray">Ray to check</param>
         /// <returns>Hit data (or null if no intersection)</returns>
         public RayHit Intersect(Ray ray)
         {
-            // Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/
-            // ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
-
             // Find the values used in the Moller-Trumbore algorithm
             Vector3 v0v1 = this.v1 - this.v0;
             Vector3 v0v2 = this.v2 - this.v0;

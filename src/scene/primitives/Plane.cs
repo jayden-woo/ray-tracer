@@ -26,14 +26,12 @@ namespace RayTracer
 
         /// <summary>
         /// Determine if a ray intersects with the plane, and if so, return hit data.
+        /// Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
         /// </summary>
         /// <param name="ray">Ray to check</param>
         /// <returns>Hit data (or null if no intersection)</returns>
         public RayHit Intersect(Ray ray)
         {
-            // Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/
-            // minimal-ray-tracer-rendering-simple-shapes/ray-plane-and-ray-disk-intersection
-
             // Check if the plane is close to being parallel to the ray
             double denominator = ray.Direction.Dot(this.normal);
             if (Math.Abs(denominator) > Double.Epsilon)

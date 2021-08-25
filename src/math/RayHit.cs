@@ -33,12 +33,10 @@ namespace RayTracer
 
         /// <summary>
         /// The direction of the reflection ray.
+        /// Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel
         /// </summary>
         public Vector3 Reflection { get
             {
-                // Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/
-                // introduction-to-shading/reflection-refraction-fresnel
-
                 // Calculate the normalized direction of the reflected ray
                 return (this.incident - 2 * this.incident.Dot(this.normal) * this.normal).Normalized();
             }
@@ -46,12 +44,10 @@ namespace RayTracer
 
         /// <summary>
         /// The direction of the refraction (transmitted) ray.
+        /// Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel
         /// </summary>
         public Vector3 Refraction { get
             {
-                // Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/
-                // introduction-to-shading/reflection-refraction-fresnel
-
                 double cosi = Math.Clamp(this.incident.Dot(this.normal), -1, 1);
                 double etai = 1, etat = this.material.RefractiveIndex;
                 Vector3 normal;
@@ -93,12 +89,10 @@ namespace RayTracer
         /// <summary>
         /// Find the ratio of reflected light to refracted light according
         /// to the Fresnel equation.
+        /// Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel
         /// </summary>
         public double Fresnel { get
             {
-                // Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/
-                // introduction-to-shading/reflection-refraction-fresnel
-
                 double cosi = Math.Clamp(this.incident.Dot(this.normal), -1, 1);
                 double etai = 1, etat = this.material.RefractiveIndex;
 

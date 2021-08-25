@@ -26,14 +26,12 @@ namespace RayTracer
 
         /// <summary>
         /// Determine if a ray intersects with the sphere, and if so, return hit data.
+        /// Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
         /// </summary>
         /// <param name="ray">Ray to check</param>
         /// <returns>Hit data (or null if no intersection)</returns>
         public RayHit Intersect(Ray ray)
         {
-            // Ref: https://www.scratchapixel.com/lessons/3d-basic-rendering/
-            // minimal-ray-tracer-rendering-simple-shapes/ray-sphere-intersection
-
             // Check if the ray intersects the sphere behind the ray's origin
             Vector3 L = this.center - ray.Origin;
             double tc = L.Dot(ray.Direction);
