@@ -66,21 +66,30 @@ namespace RayTracer
             {
                 for (int x = 0; x < outputImage.Width; x++)
                 {
-                    // Find the pixel coordinates on the screen
-                    double x_pos = (x + 0.5) / outputImage.Width;
-                    double y_pos = (y + 0.5) / outputImage.Height;
-                    double z_pos = 1.0;
+                    // Loop through all the sub-pixels according to the AAMultiplier
+                    Color color = new Color(0, 0, 0);
+                    for (int i = 0; i < this.options.AAMultiplier; i++)
+                    {
+                        for (int j = 0; j < this.options.AAMultiplier; j++)
+                        {
+                            // Find the pixel/sub-pixel coordinates on the screen
+                            double offset = 0.5 / this.options.AAMultiplier;
+                            double x_pos = (x + offset * (i * 2 + 1)) / outputImage.Width;
+                            double y_pos = (y + offset * (j * 2 + 1)) / outputImage.Height;
+                            double z_pos = 1.0;
 
-                    // Scale the x and y coordinates by the appropriate factors
-                    x_pos = ((x_pos * 2) - 1) * scale;
-                    y_pos = (1 - (y_pos * 2)) * scale / aspectRatio;
+                            // Scale the x and y coordinates by the appropriate factors
+                            x_pos = ((x_pos * 2) - 1) * scale;
+                            y_pos = (1 - (y_pos * 2)) * scale / aspectRatio;
 
-                    // Find the color for the pixel
-                    Vector3 origin = new Vector3(0, 0, 0);
-                    Vector3 direction = new Vector3(x_pos, y_pos, z_pos) - origin;
-                    Color color = CastRay(origin, direction.Normalized(), 1);
-
-                    // Set the pixel to the final calculated colour
+                            // Find the color for the pixel and add it to the total color value
+                            Vector3 origin = new Vector3(0, 0, 0);
+                            Vector3 direction = new Vector3(x_pos, y_pos, z_pos) - origin;
+                            color = color + CastRay(origin, direction.Normalized(), 1);
+                        }
+                    }
+                    // Set the pixel to the final averaged color
+                    color = color / (this.options.AAMultiplier * this.options.AAMultiplier);
                     outputImage.SetPixel(x, y, color);
                 }
             }
