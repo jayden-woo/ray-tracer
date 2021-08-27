@@ -13,8 +13,10 @@ namespace RayTracer
         public const double FieldOfView = 60.0;
         // Offset for the ray projection from its original point to avoid premature hit with the surface itself (i.e. 1e4)
         public const double Bias = 0.00001;
-        // THe maximum recursion depth for a reflective material
+        // The maximum recursion depth for a reflective material
         public const int RayDepth = 10;
+        // The sample size for depth of field rendering around the given aperture radius
+        public const int DepthOfFieldSample = 50;
 
         private SceneOptions options;
         private ISet<SceneEntity> entities;
@@ -84,14 +86,38 @@ namespace RayTracer
 
                             // Find the color for the pixel and add it to the total color value
                             Vector3 origin = new Vector3(0, 0, 0);
-                            Vector3 direction = new Vector3(x_pos, y_pos, z_pos) - origin;
-                            color = color + CastRay(origin, direction.Normalized(), 1);
+                            Vector3 direction = (new Vector3(x_pos, y_pos, z_pos) - origin).Normalized();
+
+                            // Find the focal point on the focal plane that is within
+                            // a focal length away from the origin of the camera
+                            Vector3 focalPoint = direction * Math.Max(0, options.FocalLength);
+                            // Randomly sample around the aperture radius of the origin of the camera
+                            for (int n = 0; n < DepthOfFieldSample; n++)
+                            {
+                                // Generate random x and y coordinates evenly around the camera origin
+                                double radius = options.ApertureRadius;
+                                double dx = RandomDoubleBetween(-radius, radius);
+                                double dy = RandomDoubleBetween(-radius, radius);
+                                // Get the new origin and the direction of the new origin
+                                // from the focal point previously calculated
+                                origin = new Vector3(dx, dy, 0);
+                                direction = (focalPoint - origin).Normalized();
+                                // Cast a new ray and find the new color for the pixel from this
+                                // new origin and direction and add the color up with previous samples
+                                color += CastRay(origin, direction, 1);
+                            }
+                            // Average out the color of all the samples by dividing
+                            // the total sum of colours against the sample size
+                            color /= DepthOfFieldSample;
                         }
                     }
                     // Set the pixel to the final averaged color
-                    color = color / (this.options.AAMultiplier * this.options.AAMultiplier);
+                    color /= (this.options.AAMultiplier * this.options.AAMultiplier);
                     outputImage.SetPixel(x, y, color);
                 }
+                // TODO: Remove rendering progress logging
+                if (y % 20 == 0) Console.WriteLine($"Finished Y-Axis ({y:000}) ...");
+                if (y == outputImage.Height - 1) Console.WriteLine($"Finished Rendering Image ...");
             }
         }
 
@@ -148,7 +174,7 @@ namespace RayTracer
                                 lightStrength = Math.Max(0, hit.Normal.Dot(lightDirection));
                             }
                             // Scale the colour according to the light strength and colour
-                            color = color + (hit.Material.Color * light.Color * lightStrength);
+                            color += (hit.Material.Color * light.Color * lightStrength);
                         }
                         break;
                     case Material.MaterialType.Reflective:
@@ -216,6 +242,18 @@ namespace RayTracer
             }
             // The point doesn't have any shadow casted on it
             return false;
+        }
+
+        /// <summary>
+        /// Return a random double between the given minimum and maximum value.
+        /// </summary>
+        /// <param name="min">The minimum double value</param>
+        /// <param name="max">The maximum double value</param>
+        /// <returns>A random double value between the given range</returns>
+        public double RandomDoubleBetween(double min, double max)
+        {
+            Random random = new Random();
+            return random.NextDouble() * (max - min) + min;
         }
 
     }

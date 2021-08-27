@@ -41,11 +41,17 @@ Tip: To tick, place an x between the square brackes [ ], like so: [x]
 - [ ] Option D - Glossy materials (+3)
 - [ ] Option E - Custom camera orientation (+3)
 - [ ] Option F - Beer's law (+3)
-- [ ] Option G - Depth of field (+3)
+- [x] Option G - Depth of field (+3)
 
 *Please summarise your approach(es) to stage 3 here.*
 
+##### Option G
 
+First, to create a depth of field effect in the rendering of the final image, a focal point P is calculated by multiplying the ray direction with the focal length and adding the result to the ray origin. This focal point of all pixels in the image will form a spherical focal plane that is equidistant from the camera in any direction. Any objects that intersects with the focal plane or near the focal plane will appear to be in focus. Otherwise, the objects will appear blurry and out of focus.
+
+Next, to create the blur effect to objects that are out of focus, a random sample around the aperture radius from the camera origin is sampled. Shifting the ray origin within the aperture radius is done by generating two random offset dx and dy within the range of [-aperture radius, aperture radius] and using that as the new origin. A new ray direction vector from the new ray origin to the focal point is calculated and normalized. A ray from the new origin is created with the calculated new ray direction and the colour is calculated by firing the ray into the scene. This colour is then averaged between all the samples of the same pixel and the final colour is set for the pixel in the final rendered image.
+
+The sample size for the field of view effect is being defined as a constant at the top of the Scene.cs file and can be adjusted to reduce render time but with a side effect of less accurately rendered final image. The default value of 50 samples is defined after experimenting with different sample sizes to get an ideal tradeoff between rendering time and final image quality.
 
 ## Final scene render
 
@@ -103,3 +109,5 @@ Scratchapixel: A Minimal Ray-Tracer: Rendering Simple Shapes (Sphere, Cube, Disk
 Scratchapixel: Ray Tracing: Rendering a Triangle: https://www.scratchapixel.com/lessons/3d-basic-rendering/ray-tracing-rendering-a-triangle/moller-trumbore-ray-triangle-intersection
 
 Scratchapixel: Introduction to Shading: https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel
+
+Depth of Field in Path Tracing: https://medium.com/@elope139/depth-of-field-in-path-tracing-e61180417027
