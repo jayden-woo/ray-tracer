@@ -92,6 +92,7 @@ namespace RayTracer
                             // a focal length away from the origin of the camera
                             Vector3 focalPoint = direction * Math.Max(0, options.FocalLength);
                             // Randomly sample around the aperture radius of the origin of the camera
+                            Color colorDOF = new Color(0, 0, 0);
                             for (int n = 0; n < DepthOfFieldSample; n++)
                             {
                                 // Generate random x and y coordinates evenly around the camera origin
@@ -104,11 +105,12 @@ namespace RayTracer
                                 direction = (focalPoint - origin).Normalized();
                                 // Cast a new ray and find the new color for the pixel from this
                                 // new origin and direction and add the color up with previous samples
-                                color += CastRay(origin, direction, 1);
+                                colorDOF += CastRay(origin, direction, 1);
                             }
-                            // Average out the color of all the samples by dividing
-                            // the total sum of colours against the sample size
-                            color /= DepthOfFieldSample;
+                            // Average out the color of all the depth of field samples by dividing the total
+                            // sum of colours against the sample size and add it to the color for the pixel
+                            colorDOF /= DepthOfFieldSample;
+                            color += colorDOF;
                         }
                     }
                     // Set the pixel to the final averaged color
