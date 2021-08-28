@@ -9,8 +9,6 @@ namespace RayTracer
     /// </summary>
     public class Scene
     {
-        // Horizontal field-of-view of the camera in degrees
-        public const double FieldOfView = 60.0;
         // Offset for the ray projection from its original point to avoid premature hit with the surface itself (i.e. 1e4)
         public const double Bias = 0.00001;
         // The maximum recursion depth for a reflective material
@@ -59,67 +57,58 @@ namespace RayTracer
         /// <param name="outputImage">Image to store render output</param>
         public void Render(Image outputImage)
         {
-            // Find the aspect ratio and the FOV scaling factor of the image
-            double aspectRatio = (double) outputImage.Width / outputImage.Height;
-            double scale = Math.Tan((FieldOfView / 180 * Math.PI) / 2);
+            // Create a new camera with the specified settings for this scene
+            Camera camera = new Camera(this.options, outputImage);
 
             // Loop through all the pixels in the image
             for (int y = 0; y < outputImage.Height; y++)
             {
                 for (int x = 0; x < outputImage.Width; x++)
                 {
-                    // Loop through all the sub-pixels according to the AAMultiplier
+                    // Reset the color value for the pixel
+                    Ray ray;
                     Color color = new Color(0, 0, 0);
+                    // Loop through all the sub-pixels according to the AAMultiplier
                     for (int i = 0; i < this.options.AAMultiplier; i++)
                     {
                         for (int j = 0; j < this.options.AAMultiplier; j++)
                         {
-                            // Find the pixel/sub-pixel coordinates on the screen
-                            double offset = 0.5 / this.options.AAMultiplier;
-                            double x_pos = (x + offset * (i * 2 + 1)) / outputImage.Width;
-                            double y_pos = (y + offset * (j * 2 + 1)) / outputImage.Height;
-                            double z_pos = 1.0;
-
-                            // Scale the x and y coordinates by the appropriate factors
-                            x_pos = ((x_pos * 2) - 1) * scale;
-                            y_pos = (1 - (y_pos * 2)) * scale / aspectRatio;
-
-                            // Find the color for the pixel and add it to the total color value
-                            Vector3 origin = new Vector3(0, 0, 0);
-                            Vector3 direction = (new Vector3(x_pos, y_pos, z_pos) - origin).Normalized();
-
-                            // Find the focal point on the focal plane that is within
-                            // a focal length away from the origin of the camera
-                            Vector3 focalPoint = direction * Math.Max(0, options.FocalLength);
+                            // Get the ray for this pixel/sub-pixel
+                            ray = camera.GetRay(x, y, i, j);
+                            // Check if the aperture radius and focal length is modified
+                            if (options.ApertureRadius == 0 && options.FocalLength == 1)
+                            {
+                                // Find the color for the pixel and add it to the total color value
+                                color += CastRay(ray.Origin, ray.Direction, 1);
+                                // Exit early as depth of field sampling is not needed anymore
+                                continue;
+                            }
+                            // Find the focal point of from the origin that is exactly a focal length away from the camera origin
+                            Vector3 origin = ray.Origin;
+                            Vector3 focalPoint = ray.Direction * Math.Max(0, options.FocalLength);
                             // Randomly sample around the aperture radius of the origin of the camera
                             Color colorDOF = new Color(0, 0, 0);
                             for (int n = 0; n < DepthOfFieldSample; n++)
                             {
-                                // Generate random x and y coordinates evenly around the camera origin
-                                double radius = options.ApertureRadius;
-                                double dx = RandomDoubleBetween(-radius, radius);
-                                double dy = RandomDoubleBetween(-radius, radius);
-                                // Get the new origin and the direction of the new origin
-                                // from the focal point previously calculated
-                                origin = new Vector3(dx, dy, 0);
-                                direction = (focalPoint - origin).Normalized();
+                                // Get a random new ray with a new origin and the direction of the
+                                // new origin from the focal point previously calculated
+                                ray = camera.GetRay(origin, focalPoint);
                                 // Cast a new ray and find the new color for the pixel from this
                                 // new origin and direction and add the color up with previous samples
-                                colorDOF += CastRay(origin, direction, 1);
+                                colorDOF += CastRay(ray.Origin, ray.Direction, 1);
                             }
                             // Average out the color of all the depth of field samples by dividing the total
                             // sum of colours against the sample size and add it to the color for the pixel
-                            colorDOF /= DepthOfFieldSample;
-                            color += colorDOF;
+                            color += colorDOF / DepthOfFieldSample;
                         }
                     }
                     // Set the pixel to the final averaged color
-                    color /= (this.options.AAMultiplier * this.options.AAMultiplier);
+                    color /= this.options.AAMultiplier * this.options.AAMultiplier;
                     outputImage.SetPixel(x, y, color);
                 }
                 // TODO: Remove rendering progress logging
-                if (y % 20 == 0) Console.WriteLine($"Finished Y-Axis ({y:000}) ...");
-                if (y == outputImage.Height - 1) Console.WriteLine($"Finished Rendering Image ...");
+                if (y % 20 == 0) Console.WriteLine($"Finished Rendering Y-Axis ({y:000}) ...");
+                if (y == outputImage.Height - 1) Console.WriteLine($"Finished Rendering Image ...\n");
             }
         }
 
@@ -244,18 +233,6 @@ namespace RayTracer
             }
             // The point doesn't have any shadow casted on it
             return false;
-        }
-
-        /// <summary>
-        /// Return a random double between the given minimum and maximum value.
-        /// </summary>
-        /// <param name="min">The minimum double value</param>
-        /// <param name="max">The maximum double value</param>
-        /// <returns>A random double value between the given range</returns>
-        public double RandomDoubleBetween(double min, double max)
-        {
-            Random random = new Random();
-            return random.NextDouble() * (max - min) + min;
         }
 
     }

@@ -39,11 +39,20 @@ Tip: To tick, place an x between the square brackes [ ], like so: [x]
 - [ ] Option B - Ambient lighting/occlusion (+6)
 - [ ] Option C - OBJ models (+6)
 - [ ] Option D - Glossy materials (+3)
-- [ ] Option E - Custom camera orientation (+3)
+- [x] Option E - Custom camera orientation (+3)
 - [ ] Option F - Beer's law (+3)
 - [x] Option G - Depth of field (+3)
 
 *Please summarise your approach(es) to stage 3 here.*
+
+##### Option E
+
+First, all the previous code related to pixel coordinates calculations and camera controls are refactored into a new class of its own in Camera.cs file. The calculations for pixel coordinates and their offset calculations are also rewritten to first calculating the length and height of the image plane and then finding the final position and subsequently direction of each ray by calculating how far from the bottom leftmost pixel it is and multiplying it by the total length.
+
+Next, the position translation of the camera origin is achieved by just simply assigning it from the new position vector specified in the command line arguments. The camera's rotation is achieved by first simply defining the forward vector of the new camera orientation as the normalized camera axis vector from the command line arguments.
+The up vector for the camera is calculated according to trigonometry calculations of the new X and Y coordinates. After that, the right vector is achieved by getting the cross product of the up vector and the forward vector and the result is then normalized. The new orthogonal up vector is calculated by getting the normalized cross product of the right and forward vector.
+
+Finally, with the new vectors defined for the three axis of the camera's orientation, any further calculations of the new plane formed by the three vectors can be achieved by just multiplying the X components with the right unit vector, Y components with the up unit vector, and the Z components with the forward unit vector.
 
 ##### Option G
 
@@ -111,3 +120,5 @@ Scratchapixel: Ray Tracing: Rendering a Triangle: https://www.scratchapixel.com/
 Scratchapixel: Introduction to Shading: https://www.scratchapixel.com/lessons/3d-basic-rendering/introduction-to-shading/reflection-refraction-fresnel
 
 Depth of Field in Path Tracing: https://medium.com/@elope139/depth-of-field-in-path-tracing-e61180417027
+
+Ray Tracing in One Weekend: https://raytracing.github.io/books/RayTracingInOneWeekend.html
