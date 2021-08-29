@@ -85,7 +85,7 @@ namespace RayTracer
                             }
                             // Find the focal point of from the origin that is exactly a focal length away from the camera origin
                             Vector3 origin = ray.Origin;
-                            Vector3 focalPoint = ray.Direction * Math.Max(0, options.FocalLength);
+                            Vector3 focalPoint = ray.Origin + ray.Direction * Math.Max(0, options.FocalLength);
                             // Randomly sample around the aperture radius of the origin of the camera
                             Color colorDOF = new Color(0, 0, 0);
                             for (int n = 0; n < DepthOfFieldSample; n++)
