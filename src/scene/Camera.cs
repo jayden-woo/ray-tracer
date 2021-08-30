@@ -51,24 +51,42 @@ namespace RayTracer
             double halfWidth = PixelUnit * this.scale;
             double halfHeight = halfWidth / this.aspectRatio;
 
-            // Assign the origin and forward vector of the camera
+            // Assign the origin  of the camera from the command-line argument
             this.origin = options.CameraPosition;
-            this.cameraForward = options.CameraAxis.Normalized();
 
-            // Positive angle indicates counter-clockwise rotations
-            double theta = options.CameraAngle / 180.0 * Math.PI;
-            // Find the up vector after applying the rotation (initial = (0,1,0))
-            //  x' = x cos θ − y sin θ
-            //     = 0 cos θ - 1 sin θ
-            //     = -sin θ
-            //  y' = x sin θ + y cos θ
-            //     = 0 sin θ + 1 cos θ
-            //     =  cos θ
-            this.cameraUp = new Vector3(-Math.Sin(theta), Math.Cos(theta), 0);
+            // Calculate the quartenion from the command-line arguments
+            Vector3 axis = options.CameraAxis.Normalized();
+            double theta = options.CameraAngle / 180.0 * Math.PI / 2;
+            double sinTheta = Math.Sin(theta);
+            double quartW = Math.Cos(theta);
+            double quartX = axis.X * sinTheta;
+            double quartY = axis.Y * sinTheta;
+            double quartZ = axis.Z * sinTheta;
 
-            // Find the orthogonal vector point right and up for the camera
-            this.cameraRight = this.cameraUp.Cross(this.cameraForward).Normalized();
-            this.cameraUp = this.cameraForward.Cross(this.cameraRight).Normalized();
+            // Convert the quartenion into a 3x3 rotation matriax and multiply each of the initial right vector (1,0,0),
+            // up vector (0,1,0), and forward vector (0,0,1) with the rotation matrix to get the final resultant up,
+            // right, and forward vector of the vector after the transformation.
+            // This calculation can be simplified into just extracting the first row of the rotation matrix for the
+            // right vector, second row for up vector, and the third row for the forward vector and since the initial
+            // quartenion is a unit quartenion, the resultant vectors would be unit vectors too.
+            this.cameraRight = new Vector3
+            (
+                1 - 2 * quartY * quartY - 2 * quartZ * quartZ,
+                    2 * quartX * quartY - 2 * quartW * quartZ,
+                    2 * quartX * quartZ + 2 * quartW * quartY
+            );
+            this.cameraUp = new Vector3
+            (
+                    2 * quartX * quartY + 2 * quartW * quartZ,
+                1 - 2 * quartX * quartX - 2 * quartZ * quartZ,
+                    2 * quartY * quartZ - 2 * quartW * quartX
+            );
+            this.cameraForward = new Vector3
+            (
+                    2 * quartX * quartZ - 2 * quartW * quartY,
+                    2 * quartY * quartZ + 2 * quartW * quartX,
+                1 - 2 * quartX * quartX - 2 * quartY * quartY
+            );
 
             // Find the most bottom left pixel in the image plane
             this.bottomLeft = (this.origin) - (halfWidth * this.cameraRight) - (halfHeight * this.cameraUp) + this.cameraForward;
@@ -78,10 +96,12 @@ namespace RayTracer
             this.vertical = 2 * halfHeight * this.cameraUp;
 
             // TODO: Remove camera settings logging
-            Console.WriteLine($"\nCameraSettings :-\n  AspectRatio   : {aspectRatio}\n  Scale         : {scale}");
-            Console.WriteLine($"  PixelOffset   : {pixelOffset}\n  Origin        : {origin}");
-            Console.WriteLine($"  CameraForward : {cameraForward}\n  CameraUp      : {cameraUp}\n  CameraRight   : {cameraRight}");
-            Console.WriteLine($"  BottomLeft    : {bottomLeft}\n  Horizontal    : {horizontal}\n  Vertical      : {vertical}\n");
+            Console.WriteLine($"\nCameraSettings :-");
+            Console.WriteLine($"  AspectRatio    : {aspectRatio}\n  PixelOffset    : {pixelOffset}\n  Scale          : {scale}");
+            Console.WriteLine($"  Origin         : {origin}\n  CameraAxis     : {options.CameraAxis}\n  CameraAngle    : {options.CameraAngle}");
+            Console.WriteLine($"  ApertureRadius : {options.ApertureRadius}\n  FocalLength    : {options.FocalLength}");
+            Console.WriteLine($"  CameraRight    : {cameraRight}\n  CameraUp       : {cameraUp}\n  CameraForward  : {cameraForward}");
+            Console.WriteLine($"  BottomLeft     : {bottomLeft}\n  Horizontal     : {horizontal}\n  Vertical       : {vertical}\n");
         }
 
         /// <summary>

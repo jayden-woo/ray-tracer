@@ -45,16 +45,17 @@ Tip: To tick, place an x between the square brackes [ ], like so: [x]
 
 *Please summarise your approach(es) to stage 3 here.*
 
-### Option E
+#### Option E
 
 First, all the previous code related to pixel coordinates calculations and camera controls are refactored into a new class of its own in Camera.cs file. The calculations for pixel coordinates and their offset calculations are also rewritten into first calculating the length and height of the image plane and then finding the final position and subsequently direction of each ray by calculating how far from the bottom leftmost pixel it is and multiplying it by the total length.
 
-Next, the position translation of the camera origin is achieved by just simply assigning it from the new position vector specified in the command line arguments. The camera's rotation is achieved by first simply defining the forward vector of the new camera orientation as the normalized camera axis vector from the command line arguments.
-After that, the up vector for the camera is calculated according to trigonometry calculations of the new X and Y coordinates. Then, the right vector is found by getting the cross product of the previously calculated up vector and forward vector and the result is then normalized. The new up vector, which is orthogonal to the right vector and foward vector, is calculated by getting the normalized cross product of the right and forward vector.
+Next, the position translation of the camera origin is achieved by just simply assigning it from the new position vector specified in the command line arguments.
+
+After that, the camera's rotation is achieved by first normalizing the camera axis command-line argument and then converting it into a quartenion together with the camera angle in the command-line argument. The resultant quartenion would be a unit quartenion as the input axis is a unit vector. The unit quartenoin is then converted into a 3x3 rotation matrix and then multiply it with each of the inital vectors pointing right, up, and forward to get the final vectors pointing in those respective directions. Since the initial vectors are just (1,0,0), (0,1,0), and (0,0,1), the calculations can just be simplified into the first, second, and third row of the rotation matrix respectively.
 
 Finally, with the new vectors defined for the three axis of the camera's orientation, any further calculations of the new plane formed by the three vectors can be achieved by just multiplying the X components of the previous calculations with the right unit vector, Y components with the up unit vector, and the Z components with the forward unit vector.
 
-### Option G
+#### Option G
 
 First, to create a depth of field effect in the rendering of the final image, a focal point P is calculated by multiplying the ray direction with the focal length and adding the result to the ray origin. This focal point of all pixels in the image will form a spherical focal plane that is equidistant from the camera in any direction. Any objects that intersects with the focal plane or near the focal plane will appear to be in focus. Otherwise, the objects will appear blurry and out of focus.
 
@@ -122,3 +123,5 @@ Scratchapixel: Introduction to Shading: https://www.scratchapixel.com/lessons/3d
 Depth of Field in Path Tracing: https://medium.com/@elope139/depth-of-field-in-path-tracing-e61180417027
 
 Ray Tracing in One Weekend: https://raytracing.github.io/books/RayTracingInOneWeekend.html
+
+Wikipedia: Quaternions and Spatial Rotation: https://en.wikipedia.org/wiki/Quaternions_and_spatial_rotation
