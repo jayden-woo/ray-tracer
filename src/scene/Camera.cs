@@ -63,7 +63,7 @@ namespace RayTracer
             double quartY = axis.Y * sinTheta;
             double quartZ = axis.Z * sinTheta;
 
-            // Convert the quartenion into a 3x3 rotation matriax and multiply each of the initial right vector (1,0,0),
+            // Convert the quartenion into a 3x3 rotation matrix and multiply each of the initial right vector (1,0,0),
             // up vector (0,1,0), and forward vector (0,0,1) with the rotation matrix to get the final resultant up,
             // right, and forward vector of the vector after the transformation.
             // This calculation can be simplified into just extracting the first row of the rotation matrix for the
@@ -96,12 +96,12 @@ namespace RayTracer
             this.vertical = 2 * halfHeight * this.cameraUp;
 
             // TODO: Remove camera settings logging
-            Console.WriteLine($"\nCameraSettings :-");
-            Console.WriteLine($"  AspectRatio    : {aspectRatio}\n  PixelOffset    : {pixelOffset}\n  Scale          : {scale}");
-            Console.WriteLine($"  Origin         : {origin}\n  CameraAxis     : {options.CameraAxis}\n  CameraAngle    : {options.CameraAngle}");
-            Console.WriteLine($"  ApertureRadius : {options.ApertureRadius}\n  FocalLength    : {options.FocalLength}");
-            Console.WriteLine($"  CameraRight    : {cameraRight}\n  CameraUp       : {cameraUp}\n  CameraForward  : {cameraForward}");
-            Console.WriteLine($"  BottomLeft     : {bottomLeft}\n  Horizontal     : {horizontal}\n  Vertical       : {vertical}\n");
+            // Console.WriteLine($"\nCameraSettings :-");
+            // Console.WriteLine($"  AspectRatio    : {aspectRatio}\n  PixelOffset    : {pixelOffset}\n  Scale          : {scale}");
+            // Console.WriteLine($"  Origin         : {origin}\n  CameraAxis     : {options.CameraAxis}\n  CameraAngle    : {options.CameraAngle}");
+            // Console.WriteLine($"  ApertureRadius : {options.ApertureRadius}\n  FocalLength    : {options.FocalLength}");
+            // Console.WriteLine($"  CameraRight    : {cameraRight}\n  CameraUp       : {cameraUp}\n  CameraForward  : {cameraForward}");
+            // Console.WriteLine($"  BottomLeft     : {bottomLeft}\n  Horizontal     : {horizontal}\n  Vertical       : {vertical}\n");
         }
 
         /// <summary>
