@@ -107,8 +107,8 @@ namespace RayTracer
                     outputImage.SetPixel(x, y, color);
                 }
                 // TODO: Remove rendering progress logging
-                if (y % 20 == 0) Console.WriteLine($"Finished Rendering Y-Axis ({y:000}) ...");
-                if (y == outputImage.Height - 1) Console.WriteLine($"Finished Rendering Image ...\n");
+                // if (y % 20 == 0) Console.WriteLine($"Finished Rendering Y-Axis ({y:000}) ...");
+                // if (y == outputImage.Height - 1) Console.WriteLine($"Finished Rendering Image ...\n");
             }
         }
 
