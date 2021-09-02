@@ -69,12 +69,12 @@ Be sure to replace ```/images/final_scene.png``` with your final render so it sh
 
 ![My final render](/images/final_scene.png)
 
-This render took **5** hours, **25** minutes, and **36.41** seconds on my PC.
+This render took **9** hours, **30** minutes, and **49.96** seconds on my PC.
 
 I used the following command to render the image exactly as shown:
 
 ```
-dotnet run -- -f tests/final_scene.txt -o images/final_scene.png -w 1200 -h 1200 -x 3 -p -0,1.2,-2.2 -a -0.7,0.25,-0.7 -n 42.0 -r 0.06 -t 3.8
+dotnet run -- -f tests/final_scene.txt -o images/final_scene.png -w 1200 -h 1200 -x 4 -p 0.8,1.2,-2.2 -a -0.65,0.46,-0.59 -n 41.1 -r 0.1 -t 3.8
 ```
 
 ## Sample outputs
